@@ -1,33 +1,32 @@
+import { SolarPanel } from "./Panel.js";
+import { SolarTrajectory } from "./SolarTrajectory.js";
+
 const canvas = document.getElementById("solar-grid");
 const ctx = canvas.getContext("2d");
 
-// Rectangle
-const rx = 475;
-const ry = 450;
+// Solar Panel (Rectangle)
+const rx = 300;
+const ry = 500;
 const recW = 50;
 const recH = 100;
-ctx.fillStyle = "blue";
-ctx.fillRect(rx, ry, recW, recH);
+const rec = new SolarPanel(rx, ry, recW, recH);
 
-const vertices = [
-    [rx, ry],
-    [rx + recW, ry],
-    [rx, ry + recH],
-    [rx + recW, ry + recH],
-];
+rec.draw(ctx);
+const vertices = rec.getVertices();
 
-// Circle
-ctx.beginPath();
-const cx = rx + recW / 2;
-const cy = ry + recH/ 2;
-const angleDeg = 135; // line direction (degrees)
-const angle = - angleDeg * Math.PI / 180;
+// Solar Trajectory (Circle)
+const cx = 600;
+const cy = 500;
 const radius = 450;
 
-ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
-ctx.strokeStyle = "red";
-ctx.lineWidth = 1;
-ctx.stroke();
+const angle = 90; // line direction (degrees)
+const tangentLineLength = 300;
+
+const circle = new SolarTrajectory(cx, cy, radius);
+
+circle.draw(ctx);
+circle.drawTangentLine(ctx, angle, tangentLineLength)
+
 
 // Vector of the direction perpendicular to the direction of the lines
 const perpDx = -Math.sin(angle);
