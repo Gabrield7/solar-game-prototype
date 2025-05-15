@@ -1,25 +1,47 @@
 export class SolarPanel {
-    constructor(recX, recY, recW, recH, color = "blue", fillStyle = null) {
-        this.recX = recX;
-        this.recY = recY;
-        this.recW = recW;
-        this.recH = recH;
-        this.color = color;
-        this.fillStyle = fillStyle;
-    }
-  
-    draw(ctx) {
-        ctx.fillStyle = this.color;
-        ctx.fillRect(this.recX, this.recY, this.recW, this.recH);
+    constructor(rx, ry, base, side, angle, color = "blue") {
+        this.rx = rx;               // X position of the panel
+        this.ry = ry;               // Y position of the panel
+        this.base = base;           // Horizontal base length
+        this.side = side;           // Inclined side length
+        this.angle = angle;         // Inclination angle in degrees
+        this.color = color;         
+        this.vertices = [];         // Stores the parallelogram vertices
     }
 
-    getVertices() {
-        return [
-            [this.recX, this.recY], // top-left
-            [this.recX + this.recW, this.recY], // top-right
-            [this.recX, this.recY + this.recH], // bottom-left
-            [this.recX + this.recW, this.recY + this.recH], // bottom-right
-        ];
+    draw(ctx) {
+        const rad = this.angle * Math.PI / 180;
+
+        // Horizontal base vector
+        const vx = this.base;
+        const vy = 0;
+
+        // Inclined side vector (based on the angle)
+        const hx = this.side * Math.cos(rad);
+        const hy = -this.side * Math.sin(rad); // upward inclination
+
+        // Define the four vertices of the parallelogram (clockwise)
+        const A = [this.rx, this.ry];                       // Top-left
+        const B = [this.rx + vx, this.ry + vy];             // Top-right
+        const C = [B[0] + hx, B[1] + hy];                   // Bottom-right
+        const D = [A[0] + hx, A[1] + hy];                   // Bottom-left
+
+        // Store vertices
+        this.vertices = [A, B, C, D];
+
+        // Draw the parallelogram
+        ctx.beginPath();
+        ctx.moveTo(...A);
+        ctx.lineTo(...B);
+        ctx.lineTo(...C);
+        ctx.lineTo(...D);
+        ctx.closePath();
+
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = 1;
+        ctx.stroke();
     }
 
     toRadians(deg) {
@@ -44,7 +66,7 @@ export class SolarPanel {
         };
     }
     
-    vertexIntersection(vx, vy, px, py, angleDeg) {
+    getVertexIntersection(vx, vy, px, py, angleDeg) {
         const line1 = this.explicitLine(vx, vy, angleDeg);
         const line2 = this.explicitLine(px, py, angleDeg + 90);
     
@@ -59,34 +81,41 @@ export class SolarPanel {
         const x = (line2.b - line1.b) / (line1.m - line2.m);
         return { x, y: line1.m * x + line1.b };
     }
-    
-    getCandidates(cx, cy, radius, angleDeg) {
-        const angleRad = -this.toRadians(angleDeg);
-        const dirX = Math.cos(-angleRad);
-        const dirY = Math.sin(-angleRad);
+
+    drawOuterLines(ctx, cx, cy, radius, angleDeg) {
+        // 1) compute tangent point on circle
         const { x: px, y: py } = this.getTangentPoint(cx, cy, radius, angleDeg);
-    
-        return this.getVertices().map(([vx, vy]) => {
-            const { x: ix, y: iy } = this.vertexIntersection(vx, vy, px, py, angleDeg);
-            const proj = (ix - vx) * dirX + (iy - vy) * dirY;
-            return { vx, vy, ix, iy, proj };
+        // 2) build list of { vx, vy, ix, iy }
+        const lines = this.vertices.map(([vx, vy]) => {
+            const { x: ix, y: iy } = this.getVertexIntersection(vx, vy, px, py, angleDeg);
+            return { vx, vy, ix, iy };
         });
-    }
     
-    drawTangentLines(ctx, cx, cy, radius, angleDeg) {
-        const candidates = this.getCandidates(cx, cy, radius, angleDeg);
+        // 3) brute-force all pairs to find max-distance pair
+        let maxDist2 = -Infinity;
+        let pair = [lines[0], lines[1]];
     
-        const [outer1, outer2] = candidates
-            .sort((a, b) => b.proj - a.proj)
-            .slice(0, 2);
+        for (let i = 0; i < lines.length; i++) {
+            for (let j = i + 1; j < lines.length; j++) {
+                const a = lines[i], b = lines[j];
+                const dx = a.ix - b.ix, dy = a.iy - b.iy;
+                const dist2 = dx*dx + dy*dy;
+                if (dist2 > maxDist2) {
+                maxDist2 = dist2;
+                pair = [a, b];
+                }
+            }
+        }
     
-        [outer1, outer2].forEach(({ vx, vy, ix, iy }) => {
+        // 4) draw the two farthest lines
+        pair.forEach(({ vx, vy, ix, iy }) => {
             ctx.beginPath();
             ctx.moveTo(vx, vy);
             ctx.lineTo(ix, iy);
             ctx.strokeStyle = "yellow";
-            ctx.lineWidth = 1;
+            ctx.lineWidth = 2;
             ctx.stroke();
         });
     }
+    
 }

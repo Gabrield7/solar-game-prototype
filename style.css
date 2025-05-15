@@ -1,6 +1,7 @@
 .wrapper {
     height: 100vh;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
 }
@@ -12,7 +13,11 @@
     gap: 10px;
 }
 
-.string{
+#angleControl{
+    margin-top: 50px;
+}
+
+/* .string{
     display: flex;
     gap: 10px;
     width: max-content;
@@ -36,4 +41,4 @@
     border: 1px solid red;
     left: -225px;
     top: -200px;
-}
+} */
