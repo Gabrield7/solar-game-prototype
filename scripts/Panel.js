@@ -83,18 +83,17 @@ export class SolarPanel {
     }
 
     drawOuterLines(ctx, cx, cy, radius, angleDeg) {
-        // 1) compute tangent point on circle
+        // 1) compute tangent support point
         const { x: px, y: py } = this.getTangentPoint(cx, cy, radius, angleDeg);
+
         // 2) build list of { vx, vy, ix, iy }
         const lines = this.vertices.map(([vx, vy]) => {
-            const { x: ix, y: iy } = this.getVertexIntersection(vx, vy, px, py, angleDeg);
-            return { vx, vy, ix, iy };
+        const { x: ix, y: iy } = this.getVertexIntersection(vx, vy, px, py, angleDeg);
+        return { vx, vy, ix, iy };
         });
-    
-        // 3) brute-force all pairs to find max-distance pair
-        let maxDist2 = -Infinity;
-        let pair = [lines[0], lines[1]];
-    
+
+        // 3) find the pair with max distance
+        let maxDist2 = -Infinity, pair = [lines[0], lines[1]];
         for (let i = 0; i < lines.length; i++) {
             for (let j = i + 1; j < lines.length; j++) {
                 const a = lines[i], b = lines[j];
@@ -105,17 +104,34 @@ export class SolarPanel {
                 pair = [a, b];
                 }
             }
-        }
-    
-        // 4) draw the two farthest lines
-        pair.forEach(({ vx, vy, ix, iy }) => {
-            ctx.beginPath();
-            ctx.moveTo(vx, vy);
-            ctx.lineTo(ix, iy);
-            ctx.strokeStyle = "yellow";
-            ctx.lineWidth = 2;
-            ctx.stroke();
-        });
+        };
+
+        const [L1, L2] = pair;
+        // vertices for the filled parallelogram
+        const poly = [
+            [L1.vx, L1.vy],
+            [L1.ix, L1.iy],
+            [L2.ix, L2.iy],
+            [L2.vx, L2.vy],
+        ];
+
+        // 4) fill the parallelogram
+        ctx.beginPath();
+        ctx.moveTo(...poly[0]);
+        ctx.lineTo(...poly[1]);
+        ctx.lineTo(...poly[2]);
+        ctx.lineTo(...poly[3]);
+        ctx.closePath();
+        ctx.fillStyle = 'yellow';
+        ctx.fill();
+
+        // 5) stroke its border for clarity
+        ctx.strokeStyle = 'yellow';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // 6) now redraw the panel itself on top
+        this.draw(ctx);
     }
     
 }
