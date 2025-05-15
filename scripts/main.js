@@ -4,83 +4,26 @@ import { SolarTrajectory } from "./SolarTrajectory.js";
 const canvas = document.getElementById("solar-grid");
 const ctx = canvas.getContext("2d");
 
-// Solar Panel (Rectangle)
-const rx = 300;
-const ry = 500;
-const recW = 50;
-const recH = 100;
-const rec = new SolarPanel(rx, ry, recW, recH);
-
-rec.draw(ctx);
-const vertices = rec.getVertices();
-
 // Solar Trajectory (Circle)
 const cx = 600;
 const cy = 500;
 const radius = 450;
 
-const angle = 90; // line direction (degrees)
-const tangentLineLength = 300;
+const angle = 135; // line direction (degrees)
+const tangentLineLength = 3000;
 
 const circle = new SolarTrajectory(cx, cy, radius);
 
 circle.draw(ctx);
-circle.drawTangentLine(ctx, angle, tangentLineLength)
+circle.drawTangentLine(ctx, angle, tangentLineLength);
 
+// Solar Panel (Rectangle)
+const rx = 300;
+const ry = 500;
+const recW = 50;
+const recH = 100;
 
-// Vector of the direction perpendicular to the direction of the lines
-const perpDx = -Math.sin(angle);
-const perpDy = Math.cos(angle);
+const panel = new SolarPanel(rx, ry, recW, recH);
+panel.draw(ctx);
+panel.drawTangentLines(ctx, cx, cy, radius, angle);
 
-// Projects each vertex onto the perpendicular direction → to measure the distance between lines
-const projections = vertices.map(([x, y], i) => {
-    const projection = x * perpDx + y * perpDy;
-    return { index: i, projection, x, y };
-});
-
-// Finds the pair with the greatest projection distance
-let maxDist = -Infinity;
-let pair = [0, 1];
-
-for (let i = 0; i < projections.length; i++) {
-    for (let j = i + 1; j < projections.length; j++) {
-        const d = Math.abs(projections[i].projection - projections[j].projection);
-        if (d > maxDist) {
-            maxDist = d;
-            pair = [i, j];
-        }
-    }
-}
-
-// Function that returns the intersection point with the edge of the circle
-function getIntersection(x0, y0, angle) {
-    const dx = Math.cos(angle);
-    const dy = Math.sin(angle);
-
-    const a = dx * dx + dy * dy;
-    const b = 2 * (dx * (x0 - cx) + dy * (y0 - cy));
-    const c = (x0 - cx) ** 2 + (y0 - cy) ** 2 - radius * radius;
-
-    const discriminant = b * b - 4 * a * c;
-    if (discriminant < 0) return null;
-
-    const t = (-b + Math.sqrt(discriminant)) / (2 * a);
-    const x1 = x0 + dx * t;
-    const y1 = y0 + dy * t;
-
-    return { x0, y0, x1, y1 };
-}
-
-// Draws the two lines from the selected pair
-[pair[0], pair[1]].forEach(i => {
-    const { x, y } = projections[i];
-    const line = getIntersection(x, y, angle);
-    if (!line) return;
-
-    ctx.beginPath();
-    ctx.moveTo(line.x0, line.y0);
-    ctx.lineTo(line.x1, line.y1);
-    ctx.strokeStyle = "yellow";
-    ctx.lineWidth = 2;
-    ctx.stroke();
-});

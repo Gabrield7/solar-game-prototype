@@ -22,12 +22,15 @@ export class SolarTrajectory {
         ctx.stroke();
     }
 
+    getIntersection(angle){
+        const px = this.x + this.radius * Math.cos(angle);
+        const py = this.y + this.radius * Math.sin(angle);
+        return { x: px, y: py };
+    }
 
     drawTangentLine(ctx, angle, length){
-        const radAngle = - angle * Math.PI / 180;
-        
-        const px = this.x + this.radius * Math.cos(radAngle);
-        const py = this.y + this.radius * Math.sin(radAngle);
+        const radAngle = -angle * Math.PI / 180;
+        const border = this.getIntersection(radAngle);
 
         const dx = Math.cos(radAngle + Math.PI / 2);
         const dy = Math.sin(radAngle + Math.PI / 2);
@@ -35,10 +38,10 @@ export class SolarTrajectory {
         const halfLen = length / 2;
 
         const line = {
-            x1: px - dx * halfLen,
-            y1: py - dy * halfLen,
-            x2: px + dx * halfLen,
-            y2: py + dy * halfLen,
+            x1: border.x + dx * halfLen,
+            y1: border.y + dy * halfLen,
+            x2: border.x - dx * halfLen,
+            y2: border.y - dy * halfLen
         };
 
         ctx.beginPath();
