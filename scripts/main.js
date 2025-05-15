@@ -1,5 +1,6 @@
 import { SolarPanel } from "./Panel.js";
 import { SolarTrajectory } from "./SolarTrajectory.js";
+import { StringPV } from "./strings.js";
 
 const canvas = document.getElementById("solar-grid");
 const ctx = canvas.getContext("2d");
@@ -20,7 +21,10 @@ const base = 50;
 const side = 100;
 const panelAngle = 60;
 
-const panel = new SolarPanel(rx, ry, base, side, panelAngle);
+const numberOfPanels = 5;
+const space = 25;
+
+const string = new StringPV(rx, ry, numberOfPanels, space, base, side, panelAngle);
 
 
 redraw();
@@ -36,6 +40,5 @@ function redraw() {
     circle.draw(ctx);
     circle.drawTangentLine(ctx, angle, tangentLineLength);
 
-    panel.draw(ctx);
-    panel.drawOuterLines(ctx, cx, cy, radius, angle);
+    string.draw(ctx, cx, cy, radius, angle);
 }

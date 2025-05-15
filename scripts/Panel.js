@@ -6,10 +6,26 @@ export class SolarPanel {
         this.side = side;           // Inclined side length
         this.angle = angle;         // Inclination angle in degrees
         this.color = color;         
-        this.vertices = [];         // Stores the parallelogram vertices
+        this.vertices = this.getVertices();         // Stores the parallelogram vertices
     }
 
-    draw(ctx) {
+    draw(ctx){
+        // Draw the parallelogram
+        ctx.beginPath();
+        ctx.moveTo(...this.vertices[0]);
+        ctx.lineTo(...this.vertices[1]);
+        ctx.lineTo(...this.vertices[2]);
+        ctx.lineTo(...this.vertices[3]);
+        ctx.closePath();
+
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+    }
+
+    getVertices() {
         const rad = this.angle * Math.PI / 180;
 
         // Horizontal base vector
@@ -27,21 +43,7 @@ export class SolarPanel {
         const D = [A[0] + hx, A[1] + hy];                   // Bottom-left
 
         // Store vertices
-        this.vertices = [A, B, C, D];
-
-        // Draw the parallelogram
-        ctx.beginPath();
-        ctx.moveTo(...A);
-        ctx.lineTo(...B);
-        ctx.lineTo(...C);
-        ctx.lineTo(...D);
-        ctx.closePath();
-
-        ctx.fillStyle = this.color;
-        ctx.fill();
-        ctx.strokeStyle = this.color;
-        ctx.lineWidth = 1;
-        ctx.stroke();
+        return [A, B, C, D];
     }
 
     toRadians(deg) {
@@ -88,8 +90,8 @@ export class SolarPanel {
 
         // 2) build list of { vx, vy, ix, iy }
         const lines = this.vertices.map(([vx, vy]) => {
-        const { x: ix, y: iy } = this.getVertexIntersection(vx, vy, px, py, angleDeg);
-        return { vx, vy, ix, iy };
+            const { x: ix, y: iy } = this.getVertexIntersection(vx, vy, px, py, angleDeg);
+            return { vx, vy, ix, iy };
         });
 
         // 3) find the pair with max distance
@@ -129,9 +131,6 @@ export class SolarPanel {
         ctx.strokeStyle = 'yellow';
         ctx.lineWidth = 1;
         ctx.stroke();
-
-        // 6) now redraw the panel itself on top
-        this.draw(ctx);
     }
     
 }
