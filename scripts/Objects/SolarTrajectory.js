@@ -1,64 +1,70 @@
-import { degToRad, drawArc, drawLine } from "../utils.js";
+import { degToRad, drawLine, drawArc } from "../utils.js";
 
 export class SolarTrajectory {
-    constructor(x, y, radius, startAngle = 0, endAngle = 2 * Math.PI, strokeStyle = "red", fillStyle = null) {
-        this.x = x;
-        this.y = y;
-        this.radius = radius;
-        this.startAngle = startAngle; // radians
-        this.endAngle = endAngle;     // radians
-        this.strokeStyle = strokeStyle;
-        this.fillStyle = fillStyle;
+    constructor(tx, ty, angleDeg, color = "orange") {
+        this.tx = tx;
+        this.ty = ty;
+        this.angleDeg = angleDeg;
+        this.color = color;
     }
-  
-    draw(ctx) {
-        const startDeg = this.startAngle * 180 / Math.PI;
-        const endDeg   = this.endAngle   * 180 / Math.PI;
 
-        drawArc(
-            ctx,
-            this.x,
-            this.y,
-            this.radius,
-            startDeg,
-            endDeg,
-            this.strokeStyle,
-            1,
-            !!this.fillStyle
-        );
+    // returns the two intersection points with the canvas borders
+    getEndpoints(ctx) {
+        const { tx, ty, angleDeg } = this;
+        const { width: W, height: H } = ctx.canvas;
+        const rad = degToRad(angleDeg);
+        const dx = Math.cos(rad), dy = Math.sin(rad);
+        const pts = [];
 
-        if (this.fillStyle) {
-            ctx.fillStyle = this.fillStyle;
-            ctx.fill();
+        // left border x=0
+        if (dx !== 0) {
+            const t = (0 - tx) / dx;
+            const y = ty + t * dy;
+            if (y >= 0 && y <= H) pts.push({ x: 0, y });
         }
+        // right border x=W
+        if (dx !== 0) {
+            const t = (W - tx) / dx;
+            const y = ty + t * dy;
+            if (y >= 0 && y <= H) pts.push({ x: W, y });
+        }
+        // top    border y=0
+        if (dy !== 0) {
+            const t = (0 - ty) / dy;
+            const x = tx + t * dx;
+            if (x >= 0 && x <= W) pts.push({ x, y: 0 });
+        }
+        // bottom border y=H
+        if (dy !== 0) {
+            const t = (H - ty) / dy;
+            const x = tx + t * dx;
+            if (x >= 0 && x <= W) pts.push({ x, y: H });
+        }
+
+        return pts.length >= 2 ? [pts[0], pts[1]] : null;
     }
 
-    getIntersection(angleDeg) {
-        const rad = degToRad(-angleDeg);
+    // draw the full border-crossing line
+    draw(ctx) {
+        const ends = this.getEndpoints(ctx);
+        if (ends) drawLine(ctx, ends[0], ends[1], { color: this.color });
+    }
+
+    // returns a point at relative position t∈[0,1] along the line
+    getPointAt(ctx, t) {
+        const ends = this.getEndpoints(ctx);
+        if (!ends) return null;
         return {
-            x: this.x + this.radius * Math.cos(rad),
-            y: this.y + this.radius * Math.sin(rad)
+            x: ends[0].x + (ends[1].x - ends[0].x) * t,
+            y: ends[0].y + (ends[1].y - ends[0].y) * t
         };
     }
 
-    drawTangentLine(ctx, angleDeg, length) {
-        const border = this.getIntersection(angleDeg);
-
-        const rad = degToRad(-angleDeg);
-        const dx = Math.cos(rad + Math.PI / 2);
-        const dy = Math.sin(rad + Math.PI / 2);
-        const half = length / 2;
-
-        const p1 = {
-            x: border.x + dx * half,
-            y: border.y + dy * half
-        };
-        const p2 = {
-            x: border.x - dx * half,
-            y: border.y - dy * half
-        };
-
-        drawLine(ctx, p1, p2, "black", 2);
+    // draw a small filled circle (handle) at t∈[0,1] along the line
+    drawSun(ctx, t, radius = 10, color = "yellow") {
+        const p = this.getPointAt(ctx, t);
+        if (!p) return;
+        drawArc(ctx, p.x, p.y, radius, {color: color, fill: true});
     }
 }
 

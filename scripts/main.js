@@ -3,18 +3,15 @@ import { SolarTrajectory } from "./Objects/SolarTrajectory.js";
 import { StringPV } from "./strings.js";
 import { ObjectShadow } from './Objects/Object.js';
 
-
 const canvas = document.getElementById("solar-grid");
 const ctx = canvas.getContext("2d");
+const sunControl = document.getElementById("sunControl");
 
-// Solar Trajectory (Circle)
-const cx = 600;
-const cy = 500;
-const radius = 450;
-const tangentLineLength = 3000;
-let angle = 5; // line direction (degrees)
-
-const circle = new SolarTrajectory(cx, cy, radius);
+//Solar Trajectory (line)
+const tx = 800;
+const ty = 500;
+const angleTraj = 120;
+const traj = new SolarTrajectory(tx, ty, angleTraj);
 
 // Solar Panel (Parallelogram)
 const rx = 300;
@@ -29,21 +26,28 @@ const space = 25;
 const string = new StringPV(rx, ry, numberOfPanels, space, base, side, panelAngle);
 
 // Object Shadow
-const obj = new ObjectShadow(cx, cy, radius, 240)
+const ox = 600;
+const oy = 500;
+const or = 100;
+const obj = new ObjectShadow(ox, oy, or, 120);
 
 redraw();
 
-document.getElementById("angleControl").addEventListener("input", (e) => {
-    angle = parseFloat(e.target.value);
-    redraw();
-});
+sunControl.addEventListener("input", redraw);
 
 function redraw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     obj.draw(ctx);
-    // circle.draw(ctx);
-    // circle.drawTangentLine(ctx, angle, tangentLineLength);
+
+    traj.draw(ctx);
+    // draw the blue handle at t∈[0,1]
+    const t = sunControl.value / 100;
+    traj.drawSun(ctx, t);
+  
+    // real-time coords:
+    const pos = traj.getPointAt(ctx, t);
+    console.log("sun at:", pos);
 
     // string.draw(ctx, cx, cy, radius, angle);
 }

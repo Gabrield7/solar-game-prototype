@@ -27,7 +27,7 @@ export class SolarPanel {
             const p1 = { x: this.vertices[i][0], y: this.vertices[i][1] };
             const next = this.vertices[(i + 1) % this.vertices.length];
             const p2 = { x: next[0], y: next[1] };
-            drawLine(ctx, p1, p2, this.color, 1);
+            drawLine(ctx, p1, p2, { color: this.color });
         }
     }
 
@@ -132,7 +132,7 @@ export class SolarPanel {
             const p1 = { x: poly[i][0], y: poly[i][1] };
             const next = poly[(i + 1) % poly.length];
             const p2 = { x: next[0], y: next[1] };
-            drawLine(ctx, p1, p2, 'yellow', 1);
+            drawLine(ctx, p1, p2, {color: 'yellow'});
         }
     }
 }
