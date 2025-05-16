@@ -1,4 +1,4 @@
-import { SolarPanel } from "./Panel.js";
+import { SolarPanel } from "./Objects/Panel.js";
 
 export class StringPV {
     constructor(sx, sy, numberOfPanel, space, base, side, angle, color = "blue") {

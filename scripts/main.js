@@ -1,6 +1,8 @@
-import { SolarPanel } from "./Panel.js";
-import { SolarTrajectory } from "./SolarTrajectory.js";
+import { SolarPanel } from "./Objects/Panel.js";
+import { SolarTrajectory } from "./Objects/SolarTrajectory.js";
 import { StringPV } from "./strings.js";
+import { ObjectShadow } from './Objects/Object.js';
+
 
 const canvas = document.getElementById("solar-grid");
 const ctx = canvas.getContext("2d");
@@ -26,6 +28,8 @@ const space = 25;
 
 const string = new StringPV(rx, ry, numberOfPanels, space, base, side, panelAngle);
 
+// Object Shadow
+const obj = new ObjectShadow(cx, cy, radius, 240)
 
 redraw();
 
@@ -37,8 +41,10 @@ document.getElementById("angleControl").addEventListener("input", (e) => {
 function redraw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    circle.draw(ctx);
-    circle.drawTangentLine(ctx, angle, tangentLineLength);
+    obj.draw(ctx);
+    // circle.draw(ctx);
+    // circle.drawTangentLine(ctx, angle, tangentLineLength);
 
-    string.draw(ctx, cx, cy, radius, angle);
+    // string.draw(ctx, cx, cy, radius, angle);
 }
+
