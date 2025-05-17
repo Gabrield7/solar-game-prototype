@@ -1,18 +1,18 @@
 import { degToRad, drawLine, drawArc } from "../utils.js";
 
 export class SolarTrajectory {
-    constructor(tx, ty, angleDeg, color = "orange") {
+    constructor(tx, ty, angle, color = "orange") {
         this.tx = tx;
         this.ty = ty;
-        this.angleDeg = angleDeg;
+        this.angle = angle;
         this.color = color;
     }
 
     // returns the two intersection points with the canvas borders
     getEndpoints(ctx) {
-        const { tx, ty, angleDeg } = this;
+        const { tx, ty, angle } = this;
         const { width: W, height: H } = ctx.canvas;
-        const rad = degToRad(angleDeg);
+        const rad = degToRad(-angle);
         const dx = Math.cos(rad), dy = Math.sin(rad);
         const pts = [];
 

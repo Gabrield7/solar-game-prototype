@@ -1,34 +1,80 @@
-import { degToRad, drawLine, drawArc } from '../utils.js';
+import { drawLine, drawArc, degToRad } from "../utils.js";
 
 export class ObjectShadow {
-    constructor(cx, cy, r, angle, color = "blue") {
-        this.cx = cx;         // X position of the center
-        this.cy = cy;         // Y position of the center
-        this.r = r;           // Circle radius
-        //this.h = h;           // Height in Z direction 
-        this.angle = angle;   // Angle in degrees
-        this.color = color;   // Stroke color of the circle
+    constructor(cx, cy, r, h, color = "blue") {
+        this.cx = cx;           // circle center X
+        this.cy = cy;           // circle center Y
+        this.r = r;             // circle radius
+        this.h = h;             // object height
+        this.color = color;     // shadow/stroke color
     }
 
-    draw(ctx) {
-        // Draw the main circle
-        drawArc(ctx, this.cx, this.cy, this.r, {color: this.color, width: 2});
+    draw(ctx, sx, sy) {
+        const { cx, cy, r, h } = this;
+        const dx = sx - cx, dy = sy - cy;
+        const az   = Math.atan2(dy, dx);
+        const elev = Math.atan2(h, Math.hypot(dx, dy));
+      
+        // lit–shadow divider
+        const [P1, P2] = this.edgePoints(az);
+        drawLine(ctx, P1, P2);
+      
+        if (elev > 0) {
+            // compute shadow ends
+            const dir = az + Math.PI;
+            const len = h / Math.tan(elev);
+            const ends = [P1, P2].map(p => ({
+                x: p.x + len * Math.cos(dir),
+                y: p.y + len * Math.sin(dir)
+            }));
 
-        // Calculate the two points on the circle's edge intersected by the central line
-        const points = this.getCircleIntersections(this.angle - 90);
+            ctx.save();
+            ctx.globalAlpha = 0.6;
 
-        // Draw the central line crossing the circle
-        //drawLine(ctx, points[0], points[1]);
+            // fill shadow polygon
+            ctx.beginPath();
+            ctx.moveTo(P1.x, P1.y);
+            ctx.lineTo(ends[0].x, ends[0].y);
 
-        // Draw projected lines (shadows) from both edge points
-        this.drawProjections(ctx, points, 200, this.angle);
+            // draw a single path around the semicircle cap
+            // compute center and projection angle in degrees:
+            const midX = (ends[0].x + ends[1].x) * 0.5;
+            const midY = (ends[0].y + ends[1].y) * 0.5;
+            const projDeg = (dir * 180 / Math.PI) % 360;
+
+            // line from first end up to the start of the cap
+            // then draw the cap as an arc
+            ctx.lineTo(
+                midX + r * Math.cos((projDeg - 90) * Math.PI/180),
+                midY + r * Math.sin((projDeg - 90) * Math.PI/180)
+            );
+            ctx.arc(
+                midX, midY, r,
+                degToRad(projDeg - 90),
+                degToRad(projDeg + 90)
+            );
+            // then back down to the second shadow end
+            ctx.lineTo(ends[1].x, ends[1].y);
+
+            // and back to P2
+            ctx.lineTo(P2.x, P2.y);
+            ctx.closePath();
+
+            ctx.fillStyle = "black";
+            ctx.fill();
+
+            ctx.restore();
+        }
+      
+        // fill base circle
+        drawArc(ctx, cx, cy, r, { fill: true });
     }
 
-    // Returns the two edge points of the circle based on the given angle
-    getCircleIntersections(angleDeg) {
-        const rad = degToRad(-angleDeg);
-        const dx = this.r * Math.cos(rad);
-        const dy = this.r * Math.sin(rad);
+    // circle-edge points along the line perpendicular to the sun vector
+    edgePoints(azRad) {
+        const θ  = azRad - Math.PI / 2; 
+        const dx = this.r * Math.cos(θ);
+        const dy = this.r * Math.sin(θ);
 
         return [
             { x: this.cx + dx, y: this.cy + dy },
@@ -36,16 +82,22 @@ export class ObjectShadow {
         ];
     }
 
-    // Draws projected lines (like shadows) from each point at a specified angle and length
-    drawProjections(ctx, points, length, angleDeg) {
-        const rad = degToRad(-angleDeg);
+    // project two shadow lines of length = h/tan(elevation) along direction projRad
+    castShadows(ctx, edgePts, projRad, elevRad) {
+        const len = this.h / Math.tan(elevRad);
 
-        for (const point of points) {
-            const end = {
-                x: point.x + length * Math.cos(rad),
-                y: point.y + length * Math.sin(rad)
+        const shadowEnds = [];
+
+        for (const P of edgePts) {
+            const end = { 
+                x: P.x + len * Math.cos(projRad), 
+                y: P.y + len * Math.sin(projRad)
             };
-            drawLine(ctx, point, end);
+
+            drawLine(ctx, P, end);
+            shadowEnds.push(end);
         }
+
+        return shadowEnds;
     }
 }

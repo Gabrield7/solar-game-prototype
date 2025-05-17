@@ -10,7 +10,7 @@ const sunControl = document.getElementById("sunControl");
 //Solar Trajectory (line)
 const tx = 800;
 const ty = 500;
-const angleTraj = 120;
+const angleTraj = 100;
 const traj = new SolarTrajectory(tx, ty, angleTraj);
 
 // Solar Panel (Parallelogram)
@@ -29,7 +29,9 @@ const string = new StringPV(rx, ry, numberOfPanels, space, base, side, panelAngl
 const ox = 600;
 const oy = 500;
 const or = 100;
-const obj = new ObjectShadow(ox, oy, or, 120);
+const objAngle = 120;
+const oh = 100;
+const obj = new ObjectShadow(ox, oy, or, oh, objAngle);
 
 redraw();
 
@@ -38,8 +40,6 @@ sunControl.addEventListener("input", redraw);
 function redraw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    obj.draw(ctx);
-
     traj.draw(ctx);
     // draw the blue handle at t∈[0,1]
     const t = sunControl.value / 100;
@@ -48,6 +48,8 @@ function redraw() {
     // real-time coords:
     const pos = traj.getPointAt(ctx, t);
     console.log("sun at:", pos);
+
+    obj.draw(ctx, pos.x, pos.y);
 
     // string.draw(ctx, cx, cy, radius, angle);
 }

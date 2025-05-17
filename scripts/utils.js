@@ -18,11 +18,10 @@ export function drawArc(ctx, x, y, radius, {
     endAngle = 360,
     color = "blue",
     width = 1,
-    fill = false
+    fill = false,
 } = {}) {
     ctx.beginPath();
     ctx.arc(x, y, radius, degToRad(startAngle), degToRad(endAngle));
-    ctx.strokeStyle = color;
     ctx.lineWidth = width;
 
     if (fill) {
