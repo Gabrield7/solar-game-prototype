@@ -12,14 +12,47 @@ export function drawLine(ctx, p1, p2, { color = "black", width = 1 } = {}) {
     ctx.stroke();
 }
 
+export function drawPolyLines(ctx, P0, pts, {
+    borderColor = "black",
+    width = 1,
+    fill = false,
+    opacity = 1,
+    fillColor = "blue"
+} = {}) {
+    if (!pts || !pts.length) return;
+
+    ctx.save();
+    ctx.globalAlpha = opacity;
+
+    ctx.beginPath();
+    ctx.moveTo(P0.x, P0.y);
+    for (let i = 0; i < pts.length; i++) {
+        ctx.lineTo(pts[i].x, pts[i].y);
+    }
+    ctx.closePath();
+
+    if (fill) {
+        ctx.fillStyle = fillColor;
+        ctx.fill();
+    }
+
+    ctx.strokeStyle = borderColor;
+    ctx.lineWidth = width;
+    ctx.stroke();
+    
+
+    ctx.restore();
+}
+
 // Draw an arc
 export function drawArc(ctx, x, y, rx, ry, {
     rot = 0,
     startAngle = 0,
     endAngle = 360,
-    color = "blue",
     width = 1,
     fill = false,
+    fillColor = "blue",
+    borderColor = "black",
 } = {}) {
     ctx.beginPath();
     ctx.ellipse(x, y, rx, ry, rot, degToRad(startAngle), degToRad(endAngle));
@@ -27,45 +60,12 @@ export function drawArc(ctx, x, y, rx, ry, {
     ctx.lineWidth = width;
 
     if (fill) {
-        ctx.fillStyle = color;
+        ctx.fillStyle = fillColor;
         ctx.fill();
-    } else {
-        ctx.strokeStyle = color;
-        ctx.stroke();
     }
+
+    ctx.strokeStyle = borderColor;
+    ctx.lineWidth = width;
+    ctx.stroke();
 };
 
-// export function drawIsometricCircle(ctx, x, y, radius, color = "red") {
-//     //ctx.save(); // salva o estado atual do canvas
-
-//     // Mover o "ponto de origem" do desenho para o centro do círculo
-//     ctx.translate(x, y);
-
-//     // Rotacionar o sistema de coordenadas em 45° (π/4 rad)
-//     ctx.rotate(0);
-
-//     // Desenhar uma elipse achatada (altura menor que largura)
-//     ctx.beginPath();
-//     ctx.ellipse(0, 0, radius, radius * 0.5, 0, 0, 2 * Math.PI);
-//     ctx.fillStyle = color;
-//     ctx.fill();
-
-//     //ctx.restore(); // restaura o estado original do canvas
-// }
-
-// Draw an rectangle
-export function drawRect(ctx, x, y, width, height, {
-    color = "blue",
-    borderWidth = 1,
-    fill = false
-} = {}) {
-    ctx.beginPath();
-    if (fill) {
-        ctx.fillStyle = color;
-        ctx.fillRect(x, y, width, height);
-    } else {
-        ctx.strokeStyle = color;
-        ctx.lineWidth = borderWidth;
-        ctx.strokeRect(x, y, width, height);
-    }
-}

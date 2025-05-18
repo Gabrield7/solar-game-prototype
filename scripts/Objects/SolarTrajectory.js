@@ -1,4 +1,4 @@
-import { degToRad, drawLine, drawArc } from "../utils.js";
+import { degToRad, drawPolyLines, drawArc } from "../utils.js";
 
 export class SolarTrajectory {
     constructor(tx, ty, angle, color = "orange") {
@@ -47,7 +47,7 @@ export class SolarTrajectory {
     // draw the full border-crossing line
     draw(ctx) {
         const ends = this.getEndpoints(ctx);
-        if (ends) drawLine(ctx, ends[0], ends[1], { color: this.color });
+        if (ends) drawPolyLines(ctx, ends[0], [ends[1]], { borderColor: this.color });
     }
 
     // returns a point at relative position t∈[0,1] along the line
@@ -64,7 +64,7 @@ export class SolarTrajectory {
     drawSun(ctx, t, radius = 10, color = "yellow") {
         const p = this.getPointAt(ctx, t);
         if (!p) return;
-        drawArc(ctx, p.x, p.y, radius, radius, {color: color, fill: true});
+        drawArc(ctx, p.x, p.y, radius, radius, {fillColor: color, borderColor: color, fill: true});
     }
 }
 

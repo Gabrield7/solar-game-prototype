@@ -1,6 +1,6 @@
-import { degToRad, drawLine } from "../utils.js";
+import { degToRad, drawPolyLines } from "../utils.js";
 
-export class Rec {
+export class Parallelepiped {
     constructor(cx, cy, rx, ry, angleZ, pf, height, color = "blue") {
         this.cx = cx;
         this.cy = cy;
@@ -12,7 +12,7 @@ export class Rec {
         this.color = color;
     }
 
-    getVertices2D() {
+    getAllVertices() {
         const hw = this.rx/2, hh = this.ry/2;
         const cosZ = Math.cos(this.angleZRad), sinZ = Math.sin(this.angleZRad);
 
@@ -46,7 +46,7 @@ export class Rec {
     }
 
     getShadowVertices(sx, sy) {
-        const vertices = this.getVertices2D();
+        const vertices = this.getAllVertices();
         const center = vertices.reduce((acc, v) => ({
             x: acc.x + v.x / 4,
             y: acc.y + v.y / 4
@@ -89,51 +89,49 @@ export class Rec {
     }
 
     drawShadow(ctx, sx, sy) {
-        const vertices = this.getShadowVertices(sx, sy);
+        //const vertices = this.getShadowVertices(sx, sy);
+        const vertices = this.getShadowVertices(sx, sy, 1);
         if (!vertices.length) return;
-
+    
         const dx = sx - this.cx; 
         const dy = sy - this.cy;
         const az = Math.atan2(dy, dx);
         const elev = Math.atan2(this.h, Math.hypot(dx, dy));
-
+    
         const ends = this.shadowEnds(vertices, az, elev, this.h);
+    
+        const shadowPolygon = [...vertices, ...ends.slice().reverse()];
+    
+        drawPolyLines(ctx, shadowPolygon[0], shadowPolygon.slice(1), {
+            fillColor: "black",
+            fill: true,
+            opacity: 0.6
+        });
+    }
 
-        // preencher polígono de sombra
-        ctx.save();
-        ctx.globalAlpha = 0.6;
-        ctx.beginPath();
-
-        ctx.moveTo(vertices[0].x, vertices[0].y);
-        for (let i = 1; i < vertices.length; i++) {
-            ctx.lineTo(vertices[i].x, vertices[i].y);
-        }
-
-        for (let i = ends.length - 1; i >= 0; i--) {
-            ctx.lineTo(ends[i].x, ends[i].y);
-        }
-
-        ctx.closePath();
-        ctx.fillStyle = "black";
-        ctx.fill();
-        ctx.restore();
+    drawBody(ctx) {
+        const base = this.getAllVertices();
+        const top = base.map(p => ({ x: p.x, y: p.y - this.h }));
+    
+        // Front-left face
+        drawPolyLines(ctx, base[0], [ base[1], top[1], top[0] ], { fill: true });
+    
+        // Front-right face
+        drawPolyLines(ctx, base[0], [ base[3], top[3], top[0] ], { fill: true });
+        
+        // Vertical edges
+        [0, 1, 3].forEach(i => {
+            drawPolyLines(ctx, base[i], [ top[i] ]);
+        });
+        
+        // Top face
+        drawPolyLines(ctx, top[0], top.slice(1), { fill: true });
     }
 
     draw(ctx, sx, sy) {
         this.drawShadow(ctx, sx, sy);
 
-        const verts = this.getVertices2D();
-        if (verts.length < 2) return;
-
-        ctx.beginPath();
-        ctx.moveTo(verts[0].x, verts[0].y);
-        for (let i = 1; i < verts.length; i++) {
-            ctx.lineTo(verts[i].x, verts[i].y);
-        }
-        ctx.closePath();
-
-        ctx.fillStyle = this.color;
-        ctx.fill();
+        this.drawBody(ctx)
     }
 }
 

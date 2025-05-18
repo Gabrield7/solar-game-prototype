@@ -1,8 +1,8 @@
 import { SolarPanel } from "./Objects/Panel.js";
 import { SolarTrajectory } from "./Objects/SolarTrajectory.js";
 import { StringPV } from "./strings.js";
-import { ObjectShadow } from './Objects/ObjectShadow.js';
-import { Rec } from "./Objects/rec.js";
+import { Cylinder } from './Objects/Cylinder.js';
+import { Parallelepiped } from "./Objects/Parallelepiped.js";
 
 const canvas = document.getElementById("solar-grid");
 const ctx = canvas.getContext("2d");
@@ -33,7 +33,7 @@ const orx = 100;
 const perspctiveFactor= .7;
 const oh = 100;
 const objAngle = 120;
-const obj = new ObjectShadow(ox, oy, orx, perspctiveFactor, oh, objAngle);
+const cylinder = new Cylinder(ox, oy, orx, perspctiveFactor, oh, objAngle);
 
 //rec
 const recx = 700;
@@ -44,7 +44,7 @@ const recAngleZ = 20;
 //const recAngleX = 30;
 const pf = .5;
 const rh = 100;
-const rect = new Rec(recx, recy, recW, recH, recAngleZ, pf, rh)//, recAngleX);
+const parall = new Parallelepiped(recx, recy, recW, recH, recAngleZ, pf, rh)//, recAngleX);
 
 redraw();
 
@@ -63,11 +63,10 @@ function redraw() {
     const pos = traj.getPointAt(ctx, t);
     console.log("sun at:", pos);
 
-    rect.draw(ctx, pos.x, pos.y);
-    //rect.drawShadowLines(ctx, pos.x, pos.y, 100);
+    parall.draw(ctx, pos.x, pos.y);
 
-    // obj.draw(ctx, pos.x, pos.y);
+    //cylinder.draw(ctx, pos.x, pos.y);
 
-    // string.draw(ctx, cx, cy, radius, angle);
+    //string.draw(ctx)//, cx, cy, radius, angle);
 }
 

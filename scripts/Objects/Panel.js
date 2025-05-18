@@ -1,35 +1,29 @@
-import { degToRad, drawLine } from "../utils.js";
+import { degToRad, drawPolyLines } from "../utils.js";
 
 export class SolarPanel {
     constructor(rx, ry, base, side, angle, color = "blue") {
-        this.rx = rx;               // X position of the panel
-        this.ry = ry;               // Y position of the panel
-        this.base = base;           // Horizontal base length
-        this.side = side;           // Inclined side length
-        this.angle = angle;         // Inclination angle in degrees
-        this.color = color;         // Fill/stroke color
+        this.rx = rx;                       // X position of the panel
+        this.ry = ry;                       // Y position of the panel
+        this.base = base;                   // Horizontal base length
+        this.side = side;                   // Inclined side length
+        this.angle = angle;                 // Inclination angle in degrees
+        this.color = color;                 // Fill/stroke color
         this.vertices = this.getVertices(); // Precompute corner positions
     }
 
     draw(ctx) {
+        const pts = this.vertices.map(([x, y]) => ({ x, y }));
+    
         // Fill the panel shape
-        ctx.beginPath();
-        ctx.moveTo(this.vertices[0][0], this.vertices[0][1]);
-        for (let i = 1; i < this.vertices.length; i++) {
-            ctx.lineTo(this.vertices[i][0], this.vertices[i][1]);
-        }
-        ctx.closePath();
-        ctx.fillStyle = this.color;
-        ctx.fill();
-
-        // Stroke the panel edges using our drawLine util
-        for (let i = 0; i < this.vertices.length; i++) {
-            const p1 = { x: this.vertices[i][0], y: this.vertices[i][1] };
-            const next = this.vertices[(i + 1) % this.vertices.length];
-            const p2 = { x: next[0], y: next[1] };
-            drawLine(ctx, p1, p2, { color: this.color });
-        }
+        drawPolyLines(ctx, pts[0], pts.slice(1), {
+            fillColor: this.color,
+            fill: true
+        });
+    
+        // Stroke the panel edges
+        drawPolyLines(ctx, pts[0], pts.slice(1), {borderColor: this.color});
     }
+    
 
     // Compute the four corners of the tilted panel as a parallelogram
     getVertices() {
@@ -89,50 +83,43 @@ export class SolarPanel {
     drawOuterLines(ctx, cx, cy, radius, angleDeg) {
         // 1) Compute tangent point on the circle
         const { x: px, y: py } = this.getTangentPoint(cx, cy, radius, angleDeg);
-
+    
         // 2) For each panel corner, find intersection of its perpendicular support
         const supports = this.vertices.map(([vx, vy]) => {
             const { x: ix, y: iy } = this.getVertexIntersection(vx, vy, px, py, angleDeg);
             return { vx, vy, ix, iy };
         });
-
+    
         // 3) Pick the two support lines that are furthest apart
         let maxDist2 = -Infinity, pair = [supports[0], supports[1]];
         for (let i = 0; i < supports.length; i++) {
             for (let j = i + 1; j < supports.length; j++) {
                 const a = supports[i], b = supports[j];
                 const dx = a.ix - b.ix, dy = a.iy - b.iy;
-                const dist2 = dx*dx + dy*dy;
+                const dist2 = dx * dx + dy * dy;
                 if (dist2 > maxDist2) {
                     maxDist2 = dist2;
                     pair = [a, b];
                 }
             }
         }
-
-        // 4) Build and fill the “outer” parallelogram support
+    
+        // 4) Build the “outer” parallelogram support
         const [L1, L2] = pair;
         const poly = [
-            [L1.vx, L1.vy],
-            [L1.ix, L1.iy],
-            [L2.ix, L2.iy],
-            [L2.vx, L2.vy],
+            { x: L1.vx, y: L1.vy },
+            { x: L1.ix, y: L1.iy },
+            { x: L2.ix, y: L2.iy },
+            { x: L2.vx, y: L2.vy }
         ];
-        ctx.beginPath();
-        ctx.moveTo(poly[0][0], poly[0][1]);
-        for (let i = 1; i < poly.length; i++) {
-            ctx.lineTo(poly[i][0], poly[i][1]);
-        }
-        ctx.closePath();
-        ctx.fillStyle = 'yellow';
-        ctx.fill();
-
-        // 5) Stroke the border of the support shape using drawLine
-        for (let i = 0; i < poly.length; i++) {
-            const p1 = { x: poly[i][0], y: poly[i][1] };
-            const next = poly[(i + 1) % poly.length];
-            const p2 = { x: next[0], y: next[1] };
-            drawLine(ctx, p1, p2, {color: 'yellow'});
-        }
-    }
+    
+        // 5) Fill the shape
+        drawPolyLines(ctx, poly[0], poly.slice(1), {
+            fillColor: 'yellow',
+            fill: true
+        });
+    
+        // 6) Stroke the border
+        drawPolyLines(ctx, poly[0], poly.slice(1), { borderColor: 'yellow' });
+    }    
 }

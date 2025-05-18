@@ -27,10 +27,10 @@ export class StringPV {
         return panels;
     }
 
-    draw(ctx, cx, cy, radius, angle) {
-        this.panels.forEach(panel => {
-            panel.drawOuterLines(ctx, cx, cy, radius, angle);
-        });
+    draw(ctx){//, cx, cy, radius, angle) {
+        // this.panels.forEach(panel => {
+        //     panel.drawOuterLines(ctx, cx, cy, radius, angle);
+        // });
 
         this.panels.forEach(panel => {
             panel.draw(ctx);//, cx, cy, radius, angle);
