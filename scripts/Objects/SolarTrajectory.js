@@ -64,7 +64,7 @@ export class SolarTrajectory {
     drawSun(ctx, t, radius = 10, color = "yellow") {
         const p = this.getPointAt(ctx, t);
         if (!p) return;
-        drawArc(ctx, p.x, p.y, radius, {color: color, fill: true});
+        drawArc(ctx, p.x, p.y, radius, radius, {color: color, fill: true});
     }
 }
 
