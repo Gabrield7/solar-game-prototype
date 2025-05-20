@@ -18,46 +18,61 @@ export class Cylinder extends ObjectShadow {
         ];
     }
 
-    drawShadow(ctx, sx, sy) {
-        // Compute light azimuth (az) and elevation angle (elev) based on light source (sx, sy)
+    computeShadowPolygon(sx, sy) {
         const { az, elev } = this.computeLightParams(sx, sy);
-    
-        // If the elevation is below the horizon, don't draw a shadow
-        if (elev <= 0) return;
-    
-        // Get the two edge points of the shape facing the light direction
+        if (elev <= 0) return null;
+
         const pts = this.edgePoints(az);
-    
-        // Calculate the projected ends of the shadow based on light direction and elevation
         const ends = this.shadowEnds(pts, az, elev);
-    
-        // Begin drawing the shadow shape
-        ctx.save(); // Save current canvas state
-        ctx.globalAlpha = 0.6; // Set transparency for the shadow
-    
-        ctx.beginPath();
-        ctx.moveTo(pts[0].x, pts[0].y);        // Move to first edge point
-        ctx.lineTo(ends[0].x, ends[0].y);      // Draw line to first shadow end
-    
-        // Calculate midpoint between the two shadow ends
+
         const mx = (ends[0].x + ends[1].x) * 0.5;
         const my = (ends[0].y + ends[1].y) * 0.5;
-    
-        // Define start and end angles for the curved part of the shadow
+
         const start = az + Math.PI - Math.PI / 2;
         const end = az + Math.PI + Math.PI / 2;
-    
-        // Draw an elliptical arc to simulate the curved shadow
-        ctx.ellipse(mx, my, this.rx, this.rx * this.pf, 0, start, end);
-    
-        ctx.lineTo(ends[1].x, ends[1].y);      // Connect to the second shadow end
-        ctx.lineTo(pts[1].x, pts[1].y);        // Return to second edge point
-        ctx.closePath();                       // Close the shadow path
-    
-        ctx.fillStyle = "black";               // Set fill color to black
-        ctx.fill();                            // Fill the shadow shape
-        ctx.restore();                         // Restore previous canvas state
-    }    
+
+        const segments = 16;
+        const arcPts = [];
+        for (let i = 0; i <= segments; i++) {
+            const theta = start + (end - start) * (i / segments);
+            arcPts.push({
+                x: mx + this.rx * Math.cos(theta),
+                y: my + (this.rx * this.pf) * Math.sin(theta)
+            });
+        }
+
+        return [
+            { x: pts[0].x, y: pts[0].y },
+            { x: ends[0].x, y: ends[0].y },
+            ...arcPts,
+            { x: ends[1].x, y: ends[1].y },
+            { x: pts[1].x, y: pts[1].y }
+        ];
+    }
+
+    renderShadow(ctx, poly) {
+        ctx.save();
+        ctx.globalAlpha = 0.6;
+        ctx.beginPath();
+
+        ctx.moveTo(poly[0].x, poly[0].y);
+        for (let i = 1; i < poly.length; i++) {
+            ctx.lineTo(poly[i].x, poly[i].y);
+        }
+
+        ctx.closePath();
+        ctx.fillStyle = "black";
+        ctx.fill();
+        ctx.restore();
+    }
+
+    drawShadow(ctx, sx, sy) {
+        const poly = this.computeShadowPolygon(sx, sy);
+        if (!poly) return;
+
+        this.renderShadow(ctx, poly);
+        return poly;
+    }
 
     drawBody(ctx) {
         const ry = this.rx * this.pf;
@@ -87,7 +102,6 @@ export class Cylinder extends ObjectShadow {
         ctx.restore();
     }
     
-
     draw(ctx, sx, sy) {
         this.drawShadow(ctx, sx, sy);
         this.drawBody(ctx);

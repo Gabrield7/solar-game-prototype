@@ -35,4 +35,5 @@ export class ObjectShadow {
             y: p.y + len * Math.sin(dir)
         }));
     }
+
 }

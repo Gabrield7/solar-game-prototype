@@ -69,3 +69,37 @@ export function drawArc(ctx, x, y, rx, ry, {
     ctx.stroke();
 };
 
+export function polysIntersect(polyA, polyB) {
+    const axes = [...getNormals(polyA), ...getNormals(polyB)];
+    for (let axis of axes) {
+        const [minA, maxA] = project(polyA, axis);
+        const [minB, maxB] = project(polyB, axis);
+        if (maxA < minB || maxB < minA) {
+        return false; // encontrou um eixo separador
+        }
+    }
+    return true;
+}
+
+function getNormals(poly) {
+    const normals = [];
+    for (let i = 0; i < poly.length; i++) {
+        const p1 = poly[i], p2 = poly[(i+1)%poly.length];
+        const edge = { x: p2.x - p1.x, y: p2.y - p1.y };
+        const normal = { x: -edge.y, y: edge.x };
+        const len = Math.hypot(normal.x, normal.y) || 1;
+        normals.push({ x: normal.x/len, y: normal.y/len });
+    }
+    return normals;
+}
+
+function project(poly, axis) {
+    let min = Infinity, max = -Infinity;
+    for (let p of poly) {
+        const proj = p.x*axis.x + p.y*axis.y;
+        min = Math.min(min, proj);
+        max = Math.max(max, proj);
+    }
+    return [min, max];
+}
+

@@ -87,6 +87,8 @@ export class Parallelepiped extends ObjectShadow {
             fillColor: "black",
             opacity: 0.6
         });
+
+        return poly;
     }
     
     drawBody(ctx) {

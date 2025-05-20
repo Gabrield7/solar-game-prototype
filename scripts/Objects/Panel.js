@@ -1,4 +1,4 @@
-import { degToRad, drawPolyLines } from "../utils.js";
+import { degToRad, drawPolyLines, polysIntersect } from "../utils.js";
 
 export class SolarPanel {
     constructor(rx, ry, base, side, angle, color = "blue") {
@@ -11,7 +11,7 @@ export class SolarPanel {
         this.vertices = this.getVertices(); // Precompute corner positions
     }
 
-    draw(ctx) {
+    draw(ctx, shadowPolygons = []) {
         const pts = this.vertices.map(([x, y]) => ({ x, y }));
     
         // Fill the panel shape
@@ -21,10 +21,13 @@ export class SolarPanel {
         });
     
         // Stroke the panel edges
-        drawPolyLines(ctx, pts[0], pts.slice(1), {borderColor: this.color});
+        drawPolyLines(ctx, pts[0], pts.slice(1), {borderColor: 'black'});
+
+        if (this.isShadowedBy(shadowPolygons)) {
+            drawPolyLines(ctx, pts[0], pts.slice(1), {borderColor: 'red'});
+        }
     }
     
-
     // Compute the four corners of the tilted panel as a parallelogram
     getVertices() {
         const rad = degToRad(this.angle);
@@ -122,4 +125,10 @@ export class SolarPanel {
         // 6) Stroke the border
         drawPolyLines(ctx, poly[0], poly.slice(1), { borderColor: 'yellow' });
     }    
+
+    isShadowedBy(shadowPolygons) {
+        // Returns true if this panel intersects with any given shadow polygon
+        const panelPolygon = this.vertices.map(([x, y]) => ({ x, y }));
+        return shadowPolygons.some(shadow => polysIntersect(panelPolygon, shadow));
+    }
 }
