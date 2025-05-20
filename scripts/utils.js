@@ -71,13 +71,16 @@ export function drawArc(ctx, x, y, rx, ry, {
 
 export function polysIntersect(polyA, polyB) {
     const axes = [...getNormals(polyA), ...getNormals(polyB)];
+
     for (let axis of axes) {
         const [minA, maxA] = project(polyA, axis);
         const [minB, maxB] = project(polyB, axis);
+
         if (maxA < minB || maxB < minA) {
-        return false; // encontrou um eixo separador
+            return false;
         }
     }
+
     return true;
 }
 

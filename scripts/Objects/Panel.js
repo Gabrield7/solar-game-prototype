@@ -13,7 +13,7 @@ export class SolarPanel {
 
     draw(ctx, shadowPolygons = []) {
         const pts = this.vertices.map(([x, y]) => ({ x, y }));
-    
+
         // Fill the panel shape
         drawPolyLines(ctx, pts[0], pts.slice(1), {
             fillColor: this.color,
@@ -21,11 +21,13 @@ export class SolarPanel {
         });
     
         // Stroke the panel edges
-        drawPolyLines(ctx, pts[0], pts.slice(1), {borderColor: 'black'});
+        let borderColor = 'black';
 
         if (this.isShadowedBy(shadowPolygons)) {
-            drawPolyLines(ctx, pts[0], pts.slice(1), {borderColor: 'red'});
+            borderColor = 'blue'
         }
+
+        drawPolyLines(ctx, pts[0], pts.slice(1), {borderColor});
     }
     
     // Compute the four corners of the tilted panel as a parallelogram

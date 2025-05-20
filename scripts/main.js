@@ -57,16 +57,14 @@ function redraw() {
     const t = sunControl.value / 100;
     traj.drawSun(ctx, t);
     const pos = traj.getPointAt(ctx, t);
-      // coleta sombras numa lista
+    // put shadows on a list
     const shadows = [
         cylinder.drawShadow(ctx, pos.x, pos.y),
         // parallelepiped.drawShadow(ctx, pos.x, pos.y)
     ].filter(p => p);
 
-    // desenha todos os painéis + destaque interno
-    string.panels.forEach(panel => {
-        panel.draw(ctx, shadows);
-    });
+    // Draw panels
+    string.draw(ctx, shadows)
 
     cylinder.draw(ctx, pos.x, pos.y);
     //parall.draw(ctx, pos.x, pos.y);
