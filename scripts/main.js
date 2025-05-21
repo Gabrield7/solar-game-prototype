@@ -1,50 +1,57 @@
-import { SolarPanel } from "./Objects/Panel.js";
 import { SolarTrajectory } from "./Objects/SolarTrajectory.js";
-import { StringPV } from "./strings.js";
+import { StringPV } from "./Objects/photovoltaic/strings.js";
 import { Cylinder } from './Objects/shadows/Cylinder.js';
 import { Parallelepiped } from "./Objects/shadows/Parallelepiped.js";
-import { drawPolyLines, polysIntersect } from "./utils.js";
 
 const canvas = document.getElementById("solar-grid");
 const ctx = canvas.getContext("2d");
 const sunControl = document.getElementById("sunControl");
 
 //Solar Trajectory (line)
-const tx = 1000;
-const ty = 800;
-const angleTraj = 60;
-const traj = new SolarTrajectory(tx, ty, angleTraj);
+const solTrajData = {
+    x: 1000,
+    y: 800,
+    angle: 60
+};
+const solTraj = new SolarTrajectory(...Object.values(solTrajData));
 
-// Solar Panel (Parallelogram)
-const rx = 200;
-const ry = 500;
-const base = 50;
-const side = 100;
-const panelAngle = 60;
-
-const numberOfPanels = 5;
-const space = 25;
-
-const string = new StringPV(rx, ry, numberOfPanels, space, base, side, panelAngle);
+// Solar Panel
+const stringConfig = {
+    sx: 200,
+    sy: 500,
+    count: 5,
+    space: 25,
+    base: 50,
+    side: 100,
+    angleX: -30,
+    anglexY: 30
+};
+const string = new StringPV(...Object.values(stringConfig));
 
 // OBJECT SHADOWS
-const pf = .5;
-//Cylinder
-const ox = 800;
-const oy = 500;
-const orx = 100;
-const oh = 100;
-//const objAngle = 120;
-const cylinder = new Cylinder(ox, oy, orx, pf, oh);
+const pf = 0.5;
 
-//rec
-const recx = 700;
-const recy = 500;
-const recW = 120;
-const recH = 80;
-const recAngleZ = 20;
-const rh = 100;
-const parall = new Parallelepiped(recx, recy, recW, recH, recAngleZ, pf, rh)//, recAngleX);
+// Cylinder
+const cylinderConfig = {
+    x: 800,
+    y: 500,
+    rx: 100,
+    pf,
+    h: 100
+};
+const cylinder = new Cylinder(...Object.values(cylinderConfig));
+
+// Parallelepiped
+const parallelepipedConfig = {
+    x: 700,
+    y: 500,
+    w: 120,
+    h: 80,
+    angleZ: 20,
+    pf,
+    rh: 100
+};
+const parallelepiped = new Parallelepiped(...Object.values(parallelepipedConfig));
 
 redraw();
 
@@ -53,22 +60,22 @@ sunControl.addEventListener("input", redraw);
 function redraw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    traj.draw(ctx);
+    //Draw solar trajectory
     const t = sunControl.value / 100;
-    traj.drawSun(ctx, t);
-    const pos = traj.getPointAt(ctx, t);
+    solTraj.draw(ctx, t);
+    const pos = solTraj.getPointAt(ctx, t);
+
     // put shadows on a list
     const shadows = [
         cylinder.drawShadow(ctx, pos.x, pos.y),
         // parallelepiped.drawShadow(ctx, pos.x, pos.y)
     ].filter(p => p);
 
-    // Draw panels
+    // Draw string of panels
     string.draw(ctx, shadows)
 
+    // Draw shadow objects
     cylinder.draw(ctx, pos.x, pos.y);
-    //parall.draw(ctx, pos.x, pos.y);
+    // parallelepiped.draw(ctx, pos.x, pos.y);
 }
-
-
 

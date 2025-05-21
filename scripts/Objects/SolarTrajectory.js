@@ -8,6 +8,14 @@ export class SolarTrajectory {
         this.color = color;
     }
 
+    // draw the full border-crossing line
+    draw(ctx, t) {
+        const ends = this.getEndpoints(ctx);
+        if (ends) drawPolyLines(ctx, ends[0], [ends[1]], { borderColor: this.color });
+
+        this.drawSun(ctx, t)
+    }
+
     // returns the two intersection points with the canvas borders
     getEndpoints(ctx) {
         const { tx, ty, angle } = this;
@@ -44,12 +52,6 @@ export class SolarTrajectory {
         return pts.length >= 2 ? [pts[0], pts[1]] : null;
     }
 
-    // draw the full border-crossing line
-    draw(ctx) {
-        const ends = this.getEndpoints(ctx);
-        if (ends) drawPolyLines(ctx, ends[0], [ends[1]], { borderColor: this.color });
-    }
-
     // returns a point at relative position t∈[0,1] along the line
     getPointAt(ctx, t) {
         const ends = this.getEndpoints(ctx);
@@ -64,7 +66,12 @@ export class SolarTrajectory {
     drawSun(ctx, t, radius = 10, color = "yellow") {
         const p = this.getPointAt(ctx, t);
         if (!p) return;
-        drawArc(ctx, p.x, p.y, radius, radius, {fillColor: color, borderColor: color, fill: true});
+        
+        drawArc(ctx, p.x, p.y, radius, radius, {
+            fillColor: color, 
+            borderColor: color, 
+            fill: true
+        });
     }
 }
 
