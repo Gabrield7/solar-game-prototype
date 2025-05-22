@@ -6,11 +6,11 @@ export class StringPV {
         this.sx = sx;                       // Starting X position
         this.sy = sy;                       // Starting Y position
         this.count = numberOfPanel;         // Quantity of panels
-        this.space = space;                 // Horizontal spacing between panels
+        this.space = space;                 // Space between panels
         this.base = base;                   // Base length of each panel
         this.side = side;                   // Inclined length of each panel
-        this.angleX = angleX;     // Panel Inclination in horizontal
-        this.angleY = angleY;     // Panel Inclination in vertical
+        this.angleX = angleX;               // Panel Inclination in horizontal
+        this.angleY = angleY;               // Panel Inclination in vertical
         this.color = color;
 
         this.panels = this.createPanels();

@@ -1,4 +1,5 @@
 import { PanelSlot } from "./Objects/Roof/PanelSlot.js";
+import { Roof } from "./Objects/Roof/Roof.js";
 import { SolarTrajectory } from "./Objects/SolarTrajectory.js";
 import { StringPV } from "./Objects/photovoltaic/strings.js";
 import { Cylinder } from './Objects/shadows/Cylinder.js';
@@ -16,38 +17,42 @@ const solTrajConfig = {
 };
 const solTraj = new SolarTrajectory(...Object.values(solTrajConfig));
 
-//Panel Slot
-const panelSlotConfig = {
+//Panel Slots (Roof)
+const roofConfig = {
     sx: 200,
     sy: 500,
     base: 70,
     side: 120,
-    angleX: -30,
-    anglexY: 45,
-    space: 20
+    raws: 5,
+    column: 3,
+    space: 20,
+    angleX: 45,
+    anglexY: -30
 };
 
-const slot = new PanelSlot(...Object.values(panelSlotConfig));
+const roof = new Roof(...Object.values(roofConfig))
+
+//const slot = new PanelSlot(...Object.values(panelSlotConfig));
 
 // Solar Panel
-const stringConfig = {
-    sx: 200,
-    sy: 500,
-    count: 5,
-    space: 20,
-    base: 50,
-    side: 100,
-    angleX: -30,
-    anglexY: 45, 
-};
-const string = new StringPV(...Object.values(stringConfig));
+// const stringConfig = {
+//     sx: 200,
+//     sy: 500,
+//     count: 5,
+//     space: 20,
+//     base: 50,
+//     side: 100,
+//     angleX: -30,
+//     anglexY: 45, 
+// };
+// const string = new StringPV(...Object.values(stringConfig));
 
 // OBJECT SHADOWS
 const pf = 0.5;
 
 // Cylinder
 const cylinderConfig = {
-    x: 800,
+    x: 900,
     y: 500,
     rx: 100,
     pf,
@@ -75,7 +80,10 @@ function getMousePos(evt) {
 
 canvas.addEventListener("click", e => {
     const mouse = getMousePos(e);
-    if (slot.handleClick(mouse)) redraw();
+
+    roof.slots.forEach(slot => {
+        if (slot.handleClick(mouse)) redraw();
+    });
 });
 
 redraw();
@@ -96,9 +104,8 @@ function redraw() {
         // parallelepiped.drawShadow(ctx, pos.x, pos.y)
     ].filter(p => p);
 
-    slot.draw(ctx, shadows);
-    // Draw string of panels
-    //string.draw(ctx, shadows)
+    //Draw Roof/Slots/Strings/Panels, 
+    roof.draw(ctx, shadows);
 
     // Draw shadow objects
     cylinder.draw(ctx, pos.x, pos.y);

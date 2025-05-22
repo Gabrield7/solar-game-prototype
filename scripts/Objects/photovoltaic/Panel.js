@@ -15,7 +15,7 @@ export class SolarPanel extends PanelBase {
         const isShadowBy = shadowPolygons.some(shadow => polysIntersect(pts, shadow));
         if (isShadowBy) strokeColor = 'blue';
 
-        //Draw Panel 
+        // Draw Panel 
         this.drawShape(ctx, this.color, strokeColor)
     }
 }
