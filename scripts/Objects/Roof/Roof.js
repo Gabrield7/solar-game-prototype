@@ -2,13 +2,13 @@ import { degToRad } from "../../utils.js";
 import { PanelSlot } from "./PanelSlot.js";
 
 export class Roof{
-    constructor(rx, ry, panelBase, panelSide, raws, columns, space, angleX, angleY){
+    constructor(rx, ry, panelBase, panelSide, rows, columns, space, angleX, angleY){
         this.rx = rx;               // Starting X position
         this.ry = ry;               // Starting Y position
         this.base = panelBase;      // Base length of each panel
         this.side = panelSide;      // Inclined length of each panel
-        this.raws = raws;           // Number of slots in hortzontal
-        this.columns = columns;       // Numer of Slots in vertical
+        this.rows = rows;           // Number of slots in hortzontal
+        this.columns = columns;     // Numer of Slots in vertical
         this.space = space;         // Space between Panel Slots
         this.angleX = angleX;       // Roof Inclination in horizontal
         this.angleY = angleY;       // Roof Inclination in vertical
@@ -22,7 +22,7 @@ export class Roof{
         const roofSpace = 0;               // Optional spacing between rows/columns of slots
         const slots = [];
 
-        for (let i = 0; i < this.raws; i++) {
+        for (let i = 0; i < this.rows; i++) {
             // Calculate horizontal displacement for each row
             const rowOffsetX = i * (this.base + roofSpace) * Math.cos(α);
             const rowOffsetY = i * (this.base + roofSpace) * Math.sin(α);

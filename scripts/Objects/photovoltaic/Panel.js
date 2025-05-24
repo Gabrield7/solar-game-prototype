@@ -7,7 +7,8 @@ export class SolarPanel extends PanelBase {
     }
 
     draw(ctx, shadowPolygons = []) {       
-        const pts = this.vertices;
+        //const pts = this.vertices;
+        const pts = [...Object.values(this.vertices)];
     
         // Stroke the panel edges
         let strokeColor = 'black';

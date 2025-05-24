@@ -3,7 +3,7 @@ import { PanelBase } from "../PanelBase.js";
 import { StringPV } from "../photovoltaic/strings.js";
 
 export class PanelSlot extends PanelBase{
-    constructor(rx, ry, base, side, angleX, angleY, space, color = "red"){
+    constructor(rx, ry, base, side, angleX, angleY, space, color = "rgba(255,0,0,0.9)"){
         super(rx, ry, base, side, angleX, angleY, color);
         this.space = space;
         this.strings = [];
@@ -22,6 +22,7 @@ export class PanelSlot extends PanelBase{
     // adds a single-panel string at this slot's center if clicked.
     handleClick(mousePos) {
         // Only act if the click hit this slot
+        if(this.strings.length !== 0) return;
         if (!this.containsPoint(mousePos)) return false;
 
         // Convert tilt angles to radians
@@ -39,17 +40,19 @@ export class PanelSlot extends PanelBase{
 
         // Create and store a new StringPV of length 1 exactly at that point.
         // We subtract `space` from `base` and `side` so the panel “fits” inside the slot.
-        const singleString = new StringPV(
+        const string = new StringPV(
             stringPos.x,
             stringPos.y,
-            1,                       // one panel
+            [[1]],                       // one panel
             this.space,              // spacing
             this.base - this.space,  // adjusted base
             this.side - this.space,  // adjusted side
             this.angleX,
             this.angleY
         );
-        this.strings.push(singleString);
+        
+        this.strings.push(string);
+        console.log(this.strings);
 
         return true;
     }

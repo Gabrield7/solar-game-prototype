@@ -21,31 +21,35 @@ const solTraj = new SolarTrajectory(...Object.values(solTrajConfig));
 const roofConfig = {
     sx: 200,
     sy: 500,
-    base: 70,
-    side: 120,
-    raws: 5,
-    column: 3,
+    base: 120,
+    side: 70,
+    rows: 3,
+    column: 5,
     space: 20,
-    angleX: 45,
-    anglexY: -30
+    angleX: -30,
+    anglexY: 45, 
 };
 
-const roof = new Roof(...Object.values(roofConfig))
-
-//const slot = new PanelSlot(...Object.values(panelSlotConfig));
+const roof = new Roof(...Object.values(roofConfig));
 
 // Solar Panel
-// const stringConfig = {
-//     sx: 200,
-//     sy: 500,
-//     count: 5,
-//     space: 20,
-//     base: 50,
-//     side: 100,
-//     angleX: -30,
-//     anglexY: 45, 
-// };
-// const string = new StringPV(...Object.values(stringConfig));
+const mask = [
+    [1,1,1,0,0],
+    [0,0,1,0,1],
+    [0,0,1,1,1]
+];
+
+const stringConfig = {
+    sx: 200,
+    sy: 500,
+    mask,
+    space: 20,
+    base: 100,
+    side: 50,
+    angleX: -30,
+    anglexY: 45, 
+};
+//const string = new StringPV(...Object.values(stringConfig));
 
 // OBJECT SHADOWS
 const pf = 0.5;
@@ -78,6 +82,17 @@ function getMousePos(evt) {
     return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
 }
 
+//const strings = [];
+// canvas.addEventListener("click", e => {
+//     //const mouse = getMousePos(e);
+
+//     // máscara 1×1 marcada em [0][0]
+//     const string = new StringPV(stringConfig);
+    
+//     console.log(string);
+//     strings.push(string);
+//     redraw();
+// });
 canvas.addEventListener("click", e => {
     const mouse = getMousePos(e);
 
@@ -106,10 +121,18 @@ function redraw() {
 
     //Draw Roof/Slots/Strings/Panels, 
     roof.draw(ctx, shadows);
+    //string.draw(ctx, shadows)
+    //console.log(strings);
 
     // Draw shadow objects
     cylinder.draw(ctx, pos.x, pos.y);
     // parallelepiped.draw(ctx, pos.x, pos.y);
 
+}
+
+function getRandomColor() {
+    // gera um rgba com hue aleatório
+    const h = Math.floor(Math.random()*360);
+    return `hsla(${h},100%,50%,0.6)`;
 }
 
