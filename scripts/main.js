@@ -9,6 +9,11 @@ const canvas = document.getElementById("solar-grid");
 const ctx = canvas.getContext("2d");
 const sunControl = document.getElementById("sunControl");
 
+const addString = document.getElementById("addString");
+const finishString = document.getElementById("finishString");
+
+let allowAddString = false;
+
 //Solar Trajectory (line)
 const solTrajConfig = {
     x: 1000,
@@ -28,6 +33,7 @@ const roofConfig = {
     space: 20,
     angleX: -30,
     anglexY: 45, 
+    index: 1
 };
 
 const roof = new Roof(...Object.values(roofConfig));
@@ -94,11 +100,13 @@ function getMousePos(evt) {
 //     redraw();
 // });
 canvas.addEventListener("click", e => {
+    //if(!allowAddString) return;
     const mouse = getMousePos(e);
 
-    roof.slots.forEach(slot => {
-        if (slot.handleClick(mouse)) redraw();
-    });
+    if(roof.handleClick(mouse)) redraw();
+    // roof.slots.forEach(slot => {
+    //     if (slot.handleClick(mouse)) redraw();
+    // });
 });
 
 redraw();
@@ -130,9 +138,17 @@ function redraw() {
 
 }
 
-function getRandomColor() {
-    // gera um rgba com hue aleatório
-    const h = Math.floor(Math.random()*360);
-    return `hsla(${h},100%,50%,0.6)`;
-}
+// function getRandomColor() {
+//     // gera um rgba com hue aleatório
+//     const h = Math.floor(Math.random()*360);
+//     return `hsla(${h},100%,50%,0.6)`;
+// }
+
+addString.addEventListener('click', () => {
+    allowAddString = true;
+});
+
+finishString.addEventListener('click', () => {
+    allowAddString = false;
+});
 

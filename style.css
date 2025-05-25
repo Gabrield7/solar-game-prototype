@@ -17,6 +17,17 @@
     margin-top: 50px;
 }
 
+.buttons{
+    display: flex;
+    gap: 30px;
+
+}
+
+.button{
+    font-size: 20px;
+    padding: 10px;
+}
+
 /* .string{
     display: flex;
     gap: 10px;

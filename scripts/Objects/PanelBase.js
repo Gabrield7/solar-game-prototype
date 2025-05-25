@@ -9,7 +9,7 @@ export class PanelBase {
         this.angleX = angleX;                   // Panel Inclination in horizontal
         this.angleY = angleY;                   // Panel Inclination in vertical
         this.color = fillColor;                 // Fill/stroke color
-        this.vertices = this.orderVertices(this.getVertices());     // Precompute corner positions
+        this.vertices = this.getVertices();     // Precompute corner positions
     }
 
     // compute the 4 corner points A→B→C→D of the tilted parallelogram
@@ -31,32 +31,6 @@ export class PanelBase {
         const tl = { x: bl.x + sx, y: bl.y + sy };           // top-left (D)
 
         return { bl, br, tr, tl };
-        // const A = { x: this.rx, y: this.ry };           // corner A at (rx, ry)
-        // const B = { x: this.rx + bx, y: this.ry + by }; // corner B = A + base vector
-        // const C = { x: B.x + sx, y: B.y + sy };         // corner C = B + side vector
-        // const D = { x: A.x + sx, y: A.y + sy };         // corner D = A + side vector
-
-        // return [ A, B, C, D ];
-    }
-
-    orderVertices(verticesObj) {
-        // extrai os 4 pontos
-        const pts = Object.values(verticesObj);
-
-        // 1) ordena do "mais embaixo" (maior y) para o "mais acima" (menor y)
-        pts.sort((a, b) => b.y - a.y);
-
-        // 2) os 2 primeiros são "bottom", os 2 últimos são "top"
-        const bottom = pts.slice(0, 2).sort((a, b) => a.x - b.x);
-        const top    = pts.slice(2, 4).sort((a, b) => b.x - a.x);
-
-        // 3) retorna em sentido horário, começando no bottom-left
-        return {
-            bl: bottom[0],
-            br: bottom[1],
-            tr: top[0],
-            tl: top[1]
-        };
     }
 
     // draw a filled parallelogram in its fillColor, with optional strokeColor

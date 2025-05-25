@@ -2,6 +2,16 @@ export function degToRad(deg) {
     return deg * (Math.PI / 180);
 }
 
+export function pad(n) {
+    return String(n).padStart(2, '0');
+};
+
+export function decode(code) {
+    const i = parseInt(code.slice(3, 5), 10);
+    const j = parseInt(code.slice(5, 7), 10);
+    return { i, j };
+}
+
 // Draw a line between two points
 export function drawLine(ctx, p1, p2, { color = "black", width = 1 } = {}) {
     ctx.beginPath();
