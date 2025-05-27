@@ -2,7 +2,7 @@ import { degToRad, drawPolyLines, pad, polysIntersect } from "../../utils.js";
 import { PanelBase } from "../PanelBase.js";
 
 export class SolarPanel extends PanelBase {
-    constructor(rx, ry, base, side, angleX, angleY, space, position = {i: 0, j: 0}, string, color = "blue") {
+    constructor(rx, ry, base, side, angleX, angleY, space, position = {i: 0, j: 0}, string) {
         // Convert angles to radians once
         const α = -degToRad(angleX);
         const β = -degToRad(angleY);
@@ -16,8 +16,7 @@ export class SolarPanel extends PanelBase {
         const adjustedSide = side - space;
         
         // Initialize PanelBase with adjusted values
-        super(adjustedRx, adjustedRy, adjustedBase, adjustedSide, angleX, angleY, color);
-        console.log(this.vertices)
+        super(adjustedRx, adjustedRy, adjustedBase, adjustedSide, angleX, angleY);
 
         this.outer = { rx, ry, base, side };
         // SolarPanel-specific properties
@@ -26,24 +25,25 @@ export class SolarPanel extends PanelBase {
         this.string = string;
     }
 
-    draw(ctx, shadowPolygons = []) {       
+    draw(ctx, shadowPolygons = [], color) {       
         const pts = [...Object.values(this.vertices)];
-        console.log(pts);
     
         // Stroke the panel edges
         let strokeColor = 'black';
 
         const isShadowBy = shadowPolygons.some(shadow => polysIntersect(pts, shadow));
-        if (isShadowBy) strokeColor = 'blue';
+        if (isShadowBy) strokeColor = color;
 
         // Draw Panel Boundary
-        const poly = [...Object.values(this.getVertices())];
+        const outerVerts = this.getVertices(this.outer.rx, this.outer.ry, this.outer.base, this.outer.side);
+        const poly = [...Object.values(outerVerts)];
         drawPolyLines(ctx, poly[0], poly.slice(1), {
             fill: true,
-            fillColor: 'rgb(0,0,255,0.1)'
+            fillColor: color,
+            opacity: 0.1
         });
 
         // Draw Panel 
-        this.drawShape(ctx, this.color, strokeColor);
+        this.drawShape(ctx, color, strokeColor);
     }
 }

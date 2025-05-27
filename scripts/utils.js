@@ -27,7 +27,7 @@ export function drawPolyLines(ctx, P0, pts, {
     width = 1,
     fill = false,
     opacity = 1,
-    fillColor = "blue"
+    fillColor
 } = {}) {
     if (!pts || !pts.length) return;
 

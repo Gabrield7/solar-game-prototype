@@ -1,4 +1,4 @@
-import { PanelSlot } from "./Objects/Roof/PanelSlot.js";
+//import { PanelSlot } from "./Objects/Roof/PanelSlot.js";
 import { Roof } from "./Objects/Roof/Roof.js";
 import { SolarTrajectory } from "./Objects/SolarTrajectory.js";
 import { StringPV } from "./Objects/photovoltaic/strings.js";
@@ -22,7 +22,7 @@ const solTrajConfig = {
 };
 const solTraj = new SolarTrajectory(...Object.values(solTrajConfig));
 
-//Panel Slots (Roof)
+//Solar System (Roof, Panel Slots, Strings and Panels)
 const roofConfig = {
     sx: 200,
     sy: 500,
@@ -37,25 +37,6 @@ const roofConfig = {
 };
 
 const roof = new Roof(...Object.values(roofConfig));
-
-// Solar Panel
-const mask = [
-    [1,1,1,0,0],
-    [0,0,1,0,1],
-    [0,0,1,1,1]
-];
-
-const stringConfig = {
-    sx: 200,
-    sy: 500,
-    mask,
-    space: 20,
-    base: 100,
-    side: 50,
-    angleX: -30,
-    anglexY: 45, 
-};
-//const string = new StringPV(...Object.values(stringConfig));
 
 // OBJECT SHADOWS
 const pf = 0.5;
@@ -88,25 +69,10 @@ function getMousePos(evt) {
     return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
 }
 
-//const strings = [];
-// canvas.addEventListener("click", e => {
-//     //const mouse = getMousePos(e);
-
-//     // máscara 1×1 marcada em [0][0]
-//     const string = new StringPV(stringConfig);
-    
-//     console.log(string);
-//     strings.push(string);
-//     redraw();
-// });
 canvas.addEventListener("click", e => {
-    //if(!allowAddString) return;
     const mouse = getMousePos(e);
 
     if(roof.handleClick(mouse)) redraw();
-    // roof.slots.forEach(slot => {
-    //     if (slot.handleClick(mouse)) redraw();
-    // });
 });
 
 redraw();
@@ -129,8 +95,6 @@ function redraw() {
 
     //Draw Roof/Slots/Strings/Panels, 
     roof.draw(ctx, shadows);
-    //string.draw(ctx, shadows)
-    //console.log(strings);
 
     // Draw shadow objects
     cylinder.draw(ctx, pos.x, pos.y);
@@ -138,17 +102,13 @@ function redraw() {
 
 }
 
-// function getRandomColor() {
-//     // gera um rgba com hue aleatório
-//     const h = Math.floor(Math.random()*360);
-//     return `hsla(${h},100%,50%,0.6)`;
-// }
-
-addString.addEventListener('click', () => {
-    allowAddString = true;
-});
-
 finishString.addEventListener('click', () => {
-    allowAddString = false;
+    roof.expandString = false;
+
+    roof.mask.forEach((row, i) => {
+        row.forEach((cell, j) => {
+            if (cell === 'A') roof.mask[i][j] = 0
+        });
+    });
 });
 

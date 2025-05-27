@@ -17,39 +17,7 @@
     margin-top: 50px;
 }
 
-.buttons{
-    display: flex;
-    gap: 30px;
-
-}
-
 .button{
     font-size: 20px;
     padding: 10px;
 }
-
-/* .string{
-    display: flex;
-    gap: 10px;
-    width: max-content;
-}
-
-.solar-panel{
-    display: flex;
-    height: 100px;
-    width: 50px;
-    background-color: blue;
-    position: relative;
-}
-
-.solar-panel:first-child::after{
-    content: '';
-    display: flex;
-    height: 500px;
-    border-radius: 250px;
-    width: 500px;
-    position: absolute;
-    border: 1px solid red;
-    left: -225px;
-    top: -200px;
-} */
